@@ -26,10 +26,7 @@ valid_ip() {
         return 1
     fi
 
-    # Bloquear red 127.0.0.0/8 completa (loopback)
-    if ((o1 == 127)); then
-        return 1
-    fi
+
 
     # Bloquear 0.x.x.x
     if ((o1 == 0)); then
