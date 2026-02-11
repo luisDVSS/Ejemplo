@@ -34,14 +34,51 @@ intToip() {
 conf_ipsv() {
  ip_int=$(ipToint "$1") || exit 1
  ip_mas=$(intToip $((ip_int + 1)))
- 
- config_redsv $2 $ip_mas 24
+ local prefis=$3
+ config_redsv $2 $ip_mas $prefis
 }
 dhcp_status() {
 systemctl restart isc-dhcp-server
 systemctl enable isc-dhcp-server
 echo "DHCP server configurado y activo"
 
+}
+validar_ip_network() {
+    local ip="$1"
+    local prefijo="$2"
+
+    # Separar octetos y validar rango
+    IFS='.' read -r o1 o2 o3 o4 <<< "$ip"
+    for octeto in $o1 $o2 $o3 $o4; do
+        if ((octeto < 0 || octeto > 255)); then
+            return 1
+        fi
+    done
+
+    # Bloquear redes inválidas comunes
+    if [[ "$ip" == "0.0.0.0" ]] || ((o1 == 127)); then
+        return 1
+    fi
+
+    # Convertir a entero
+    local ip_int=$(ipToint "$ip")
+    local mask=$(( 0xFFFFFFFF << (32 - prefijo) & 0xFFFFFFFF ))
+
+    #Calcular network real
+    local network=$(( ip_int & mask ))
+
+    #Verificar que la IP sea exactamente la network
+    if (( ip_int == network )); then
+        return 0
+    else
+        return 1
+    fi
+}
+
+prefijo_a_mascara() {
+    local prefijo=$1
+    local mask=$(( 0xFFFFFFFF << (32 - prefijo) & 0xFFFFFFFF ))
+    intToip $mask
 }
 config_dhcp() {
 #validacion de INTERFAZ 
@@ -58,17 +95,34 @@ done
 #Validacion Ip	NETWORK
 while :; do
 	read -p "IP de la network: " network
-	if valid_ip $network; then
-		echo "IP de network valida..."
-		echo "Configurando la ip del servidor..."
-		break
-	else
-		echo "[AVISO] IP Invaida, ingresa una nueva"
-	fi
-	
+	if validar_formato_ip "$network"; then
+    echo "Formato IP válido..."
+
+    while :; do
+        read -p "Ingresa prefijo de la red: " prefijo
+
+        if ! [[ $prefijo =~ ^[0-9]+$ ]] || (( prefijo < 1 || prefijo > 30 )); then
+            echo "El prefijo tiene que ser de 1-30"
+        else
+            break
+        fi
+    done
+
+    echo "Validando que sea una IP de red real..."
+
+    if validar_ip_network "$network" "$prefijo"; then
+        echo "IP de red válida"
+        echo "Configurando la IP del servidor..."
+        conf_ipsv "$network" "$interfaz" "$prefijo"
+        break
+    else
+        echo "La IP no corresponde a una network válida"
+    fi
+else
+    echo "[AVISO] Formato IP inválido"
+fi
 done
-#CONFIGURACION DE RED
- conf_ipsv $network $interfaz
+mascara=$(prefijo_a_mascara "$prefijo")
 #ingreso de rango y validacion de coherencia y sintaxis
 while :; do
 	while :; do
@@ -104,7 +158,7 @@ while :; do
 		echo "IP de network y servidor fuera del rango del servicio: CORRECTO"
 		echo "Validando segmentacion coherente.."
 
-	       	if mismo_segmentos $ip_min $ip_mas $mas 255.255.255.0; then 
+	       	if mismo_segmentos $ip_min $ip_mas $mascara; then 
 			echo "El rango si esta dentro del segmento"
 		       	break
 	       	else
@@ -178,7 +232,7 @@ cat > /etc/dhcp/dhcpd.conf <<EOF
 default-lease-time $min_horas;
 max-lease-time $max_horas;
 authoritative;
-subnet $network netmask 255.255.255.0 {
+subnet $network netmask $mascara {
 range $ip_min $ip_max;
 option routers $puerta;
 option domain-name-servers $ip_dns;
@@ -189,7 +243,7 @@ dhcp_status
 #INSTALACION DHCP
 instal_dhcp() {
 	echo "Instalando isc-dhcp-serer..."
-	apt install  >/dev/null 2>&1 
+	apt update -y >/dev/null 2>&1
 	apt install -y isc-dhcp-server >/dev/null 2>&1 || {
 	       	echo "[ERROR] No se pudo instalar isc-dhcp-server"; 
 		echo "[AVISO] Comprueba tu conexion a internet";
@@ -285,4 +339,3 @@ case $selected in
 		;;
 esac
 done
-
