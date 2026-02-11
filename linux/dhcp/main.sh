@@ -139,7 +139,7 @@ done
 #INPUTS DE LOS TIME LEASES
 while :; do
 	while :; do
-		read -p "Tiempo DEFAULT de lease en horas" min_horas
+		read -p "Tiempo DEFAULT de lease en horas: " min_horas
 		if ! isInt "$min_horas"; then
 			echo "[AVISO] Ingresa un valor numerico entero !"
 		else
@@ -148,7 +148,7 @@ while :; do
 		fi
 	done
 	while :; do
-		read -p "Tiempo Maximo de lease en horas" max_horas
+		read -p "Tiempo Maximo de lease en horas: " max_horas
 		if ! isInt "$max_horas"; then
 			echo "[AVISO] Ingresa un valor numerico entero !"
 		else
@@ -160,7 +160,7 @@ while :; do
 		echo "[AVISO] Las horas default no pueden ser mayor a las horas maximas"
 	        
 	else
-		if ( min_horas>0 ); then
+		if (( min_horas > 0 )); then
 			max_horas=$(( max_horas * 3600 ))
 			min_horas=$(( min_horas * 3600 ))
 			break
@@ -228,7 +228,23 @@ case $selected in
 						;;
 				esac
 			else
-				echo "No cuentas con isc-dhcp-server. Procediendo con la instalacion..."
+				echo "No cuentas con ninguna configuracion previa"
+				read -p "Desesas proceder a la configuracion? [s/n]" configurar
+				case $configurar in
+					s)
+
+						echo "Procediendo con la configuracion de DHCP"
+						config_dhcp
+						;;
+					n)
+						echo "Abortando..."
+						exit 0
+						;;
+					*)
+						echo "Opcion invalida, abortando..."
+						exit 1
+						;;
+				esac
 			fi
 		else
               		echo "No cuentas con la previa instalacion de isc-dhcp-server"
