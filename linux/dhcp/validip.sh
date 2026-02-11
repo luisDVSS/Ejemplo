@@ -1,15 +1,40 @@
 #!/bin/bash
-valid_ip(){
-local  ip=$1
-local  stat=1
-    if [[ $ip =~ ^[1-9][0-9]{1,2}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-        OIFS=$IFS
-        IFS='.'
-        ip=($ip)
-        IFS=$OIFS
-        [[ ${ip[0]} -le 255 && ${ip[1]} -le 255 \
-            && ${ip[2]} -le 255 && ${ip[3]} -le 254 ]]
-        stat=$?
+valid_ip() {
+    local ip="$1"
+
+    # Validar formato general
+    if [[ ! $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        return 1
     fi
-    return $stat
+
+    # Separar octetos
+    IFS='.' read -r o1 o2 o3 o4 <<< "$ip"
+
+    # Validar rango 0-255 en cada octeto
+    for octeto in $o1 $o2 $o3 $o4; do
+        if ((octeto < 0 || octeto > 255)); then
+            return 1
+        fi
+    done
+
+    # IPs no permitidas explícitamente
+    if [[ "$ip" == "0.0.0.0" ||
+          "$ip" == "1.0.0.0" ||
+          "$ip" == "127.0.0.0" ||
+          "$ip" == "127.0.0.1" ||
+          "$ip" == "255.255.255.255" ]]; then
+        return 1
+    fi
+
+    # Bloquear red 127.0.0.0/8 completa (loopback)
+    if ((o1 == 127)); then
+        return 1
+    fi
+
+    # Bloquear 0.x.x.x
+    if ((o1 == 0)); then
+        return 1
+    fi
+
+    return 0
 }
