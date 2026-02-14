@@ -19,5 +19,5 @@ mismo_segmentos(){
 		return 0
 	else
 		return 1
-	fi
+	fiP
 }
