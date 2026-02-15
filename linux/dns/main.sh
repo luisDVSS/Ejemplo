@@ -21,6 +21,8 @@ while :; do
     echo "1) Ver si Bind9 esta intalado"
     echo "2) Instalar Bind9"
     echo "3) Eliminar un dominio"
+    echo "4) Dominios registrados"
+    echo "5) Salir"
     read -r opc
     case "$opc" in
     1)
@@ -52,6 +54,13 @@ while :; do
             echo "Los servicios no estan instalados.."
             continue
         fi
+        ;;
+    4)
+        getDomains
+        ;;
+    5)
+        echo "Saliendo.."
+        break
         ;;
     *)
         echo "Opcion invalida"
