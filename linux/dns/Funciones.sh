@@ -98,7 +98,7 @@ prefijo_a_mascara() {
     local mask=$((((0xFFFFFFFF << bits) & 0xFFFFFFFF)))
     intToip $mask
 }
-get() {
+getZonaInversa() {
     local ip="$1"
 
     # Validar formato básico de IP
@@ -123,5 +123,38 @@ get() {
 ipToInt() {
     local IFS=.
     read -r a b c d <<<"$1"
-    echo $(((a << 24) | (b << 16) | (c << 8) | d))
+    # shellcheck disable=SC2323
+    echo $((((a << 24) | (b << 16) | (c << 8) | d)))
+}
+resetBind() {
+    systemctl restart bind9
+}
+getOcteto() {
+    local ip="$1"
+    local num="$2"
+
+    # Validar numero de octeto
+    if ! [[ "$num" =~ ^[1-4]$ ]]; then
+        return 1
+    fi
+
+    # Validar formato básico IP
+    if [[ ! $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        return 1
+    fi
+
+    IFS='.' read -r o1 o2 o3 o4 <<<"$ip"
+
+    # Validar rango 0-255
+    for octeto in $o1 $o2 $o3 $o4; do
+        if ((octeto < 0 || octeto > 255)); then
+            return 1
+        fi
+    done
+    case "$num" in
+    1) echo "$o1" ;;
+    2) echo "$o2" ;;
+    3) echo "$o3" ;;
+    4) echo "$o4" ;;
+    esac
 }

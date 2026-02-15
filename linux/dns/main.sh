@@ -41,7 +41,7 @@ while :; do
             getService bind9 bind9-doc bind9utils
             echo "servicios instalados correctamente"
             askConf
-
+            continue
         fi
         ;;
     *)
