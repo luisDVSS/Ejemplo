@@ -1,12 +1,14 @@
 #!/bin/bash
-. Funciones.sh
-. config_dns.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$SCRIPT_DIR/Funciones.sh"
+source "$SCRIPT_DIR/config_dns.sh"
 askDhcp() {
     read -r -p "¿Configurar o entrar al modulo de DHCP?[s/n]" cont
     case $cont in
     s)
         echo "Continuando con la configuracion..."
-        bash ../dhcp/main.sh
+        source "$SCRIPT_DIR/../dhcp/main.sh"
         ;;
     n)
         echo "saliendo del script.."
@@ -17,7 +19,7 @@ askDhcp() {
 }
 askConf() {
     # shellcheck disable=SC2313
-    read -r -p "¿Deses crearun dominio?"[s/n] cont
+    read -r -p "¿Deses crearun dominio? [s/n]" cont
     case $cont in
     s)
         echo "Continuando con la configuracion..."

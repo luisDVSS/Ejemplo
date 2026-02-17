@@ -1,10 +1,10 @@
 #!/bin/bash
-. validip.sh
-. conf_red.sh
-. monitor.sh
-. valid_segm.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-
+source "$SCRIPT_DIR/validip.sh"
+source "$SCRIPT_DIR/conf_red.sh"
+source "$SCRIPT_DIR/monitor.sh"
+source "$SCRIPT_DIR/valid_segm.sh"
 #validacion para ver si dhcp ya esta instalado
 valid_inst() {
  if dpkg -s isc-dhcp-server &>/dev/null; then
