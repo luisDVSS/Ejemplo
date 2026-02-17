@@ -263,7 +263,7 @@ if (-not (Test-UsableIP $ipMax $network $mascara)) {
 $leaseTime = [TimeSpan]::FromSeconds([int]$leaseSeconds)
             #input de de dns
 do {
-    $dns = Read-Host "IP DNS (No Omitible)"
+    $dns = Read-Host "IP DNS (en blanco=$serverIP)"
     #si esta vacia se le añade la ip del sv
     if ([string]::IsNullOrWhiteSpace($dns)) {
         $dns=$serverIP
