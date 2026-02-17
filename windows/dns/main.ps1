@@ -2,7 +2,7 @@
 # Importar scripts auxiliares
 
 . .\Funciones.ps1
-. .\config_dns.ps1
+. .\config_red.ps1
 
 
 # Confirmar configuración DNS
