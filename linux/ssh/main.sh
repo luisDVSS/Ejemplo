@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source ./funciones.sh
+source ./funciones_ssh.sh
 if ! isRoot; then
     echo "[OJITO] Debes ejectuar este script en modo ROOT"
     exit 1
