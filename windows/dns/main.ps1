@@ -1,8 +1,9 @@
 
 # Importar scripts auxiliares
 
-. "$PSScriptRoot\Funciones.ps1"
+. "$PSScriptRoot\dns_funciones.ps1"
 . "$PSScriptRoot\config_red.ps1"
+. (Join-Path (Split-Path $PSScriptRoot -Parent) "win_funciones.ps1")
 
 # Confirmar configuracion DNS
 
@@ -118,9 +119,7 @@ while ($true) {
             exit 0
         }
 
-        # ===============================
         # Opcion invalida
-        # ===============================
         default {
             Write-Host "Opcion invalida"
         }

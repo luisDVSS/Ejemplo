@@ -4,6 +4,7 @@
 . "$PSScriptRoot\conf_red.ps1"
 . "$PSScriptRoot\monitor.ps1"
 . "$PSScriptRoot\validsegmn.ps1"
+
 Write-Host "DEBUG: imports OK"
 Read-Host "ENTER para continuar"
 function Valid-InstDHCP {
