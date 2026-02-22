@@ -24,7 +24,7 @@ done
 #Validacion Ip	NETWORK
 while :; do
 	read -p "IP de la network: " network
-	if validar_formato_ip "$network"; then
+	if isIpFormat "$network"; then
     echo "Formato IP válido..."
 
     while :; do
@@ -201,7 +201,7 @@ read selected
 case $selected in
 	1)
 		echo "1"
-		if isInstalled; then
+		if isInstalled isc-dhcp-server; then
 			echo "[AVISO] Ya cuentas con la instalacion de-> 'isc-dhcp-server'"
 			echo "validando si ya hay una configuracion de dhcp-server..."
 			if valid_conf_ya isc-dhcp-server; then

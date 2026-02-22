@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/../lib_funciones.sh"
+source "$SCRIPT_DIR/../lib_func.sh"
 
 if ! isRoot; then
     echo "[OJITO] Debes ejectuar este script en modo ROOT"
@@ -11,7 +11,12 @@ if ! isInstalled openssh-server; then
     if getService openssh-server; then
         systemctl enable ssh
         systemctl start ssh
+        echo "Configurando Interfaz a usar en ssh"
+        setLocalRed enp0s10 192.168.99.10 24
     fi
+else
+    systemctl enable ssh
+    systemctl start ssh
+    echo "Configurando Interfaz a usar en ssh"
+    setLocalRed enp0s10 192.168.99.10 24
 fi
-echo "Configurando Interfaz a usar en ssh"
-setLocalRed enp0s10 192.168.99.10 24
