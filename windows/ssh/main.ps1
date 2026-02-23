@@ -1,5 +1,5 @@
 # Cargar funciones
-. (Join-Path (Split-Path $PSScriptRoot -Parent) "win_funciones.ps1")
+. (Join-Path (Split-Path $PSScriptRoot -Parent) "win_functions.ps1")
 
 # Validar ejecución como Administrador
 Is-Root
