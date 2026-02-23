@@ -66,11 +66,7 @@ while ($true) {
         # Verificar instalacion DNS
        
         "1" {
-            if (Is-Installed "DNS") {
-                Write-Host "El servicio DNS YA esta instalado."
-            } else {
-                Write-Host "El servicio DNS NO esta instalado."
-            }
+            Is-Installed "DNS"
         }
 
        # Instalar DNS
@@ -79,7 +75,7 @@ while ($true) {
             Write-Host "Validando instalacion del servicio DNS..."
 
             if (Is-Installed "DNS") {
-                Write-Host "El servicio DNS ya esta instalado."
+                
                 Ask-Conf
             } else {
                 Write-Host "Procediendo con la instalacion del servicio DNS..."

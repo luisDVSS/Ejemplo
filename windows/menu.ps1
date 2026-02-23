@@ -18,7 +18,7 @@ while ($true) {
     switch ($opc) {
 
         "1" {
-                   & (Join-Path $SCRIPT_DIR "dhcp\main.ps1")
+                   & (Join-Path $SCRIPT_DIR "dhcpwin\main.ps1")
 
             
         }

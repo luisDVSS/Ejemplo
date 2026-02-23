@@ -1,8 +1,7 @@
 
 # Importar funciones auxiliares
 
-. .\Funciones.ps1 
-
+. (Join-Path $PSScriptRoot "dns_funciones.ps1")
 
 # Configurar DNS
 
