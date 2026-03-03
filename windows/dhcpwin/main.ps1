@@ -289,11 +289,11 @@ if (-not [string]::IsNullOrWhiteSpace($gw)) {
 if (-not [string]::IsNullOrWhiteSpace($dns)) {
     Set-DhcpServerv4OptionValue -DnsServer $dns -Force
     Write-Host "Configurando DNS..."
-    Set-DnsClientServerAddress `
+    Set-DnsClientSerPerAddress `
     -InterfaceAlias $interfaz `
     -ServerAddresses $dns
 }
-
+setLocalDNS $serverIP "Ethernet 2"
 Restart-Service DHCPServer
 Write-Host "DHCP configurado y activo"
 

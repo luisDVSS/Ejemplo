@@ -1,3 +1,15 @@
+function setLocalDns {
+	param (
+		[string]$ipDNS,
+		[string]$interfaz
+	)
+
+	Write-Host "Asignando el DNS al sv..."
+	Set-DnsClientServerAddress -InterfaceAlias $interfaz -ServerAddresses $ipDNS	
+}
+
+
+
 function Is-Installed {
     param (
         [string]$ServiceName

@@ -8,6 +8,8 @@ while :; do
     echo "1) DHCP"
     echo "2) DNS"
     echo "3) SSH"
+    echo "4) FTP"
+
     read -r opc
     case "$opc" in
     1)
@@ -19,6 +21,14 @@ while :; do
     3)
         sudo "$SCRIPT_DIR/ssh/main.sh"
         ;;
+    4)
+        sudo "$SCRIPT_DIR/Ftp/main.sh"
+        ;;
+    *)
+        echo "Saliendo del script.."
+        exit
+        ;;
+
     esac
 
 done
