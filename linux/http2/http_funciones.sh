@@ -117,8 +117,8 @@ new_index_html() {
     local webroot
 
     case "$servicio" in
-    apache2) webroot="/var/www/html" ;;
-    nginx) webroot="/var/www/html" ;;
+    apache2) webroot="/var/www/apache2" ;;
+    nginx) webroot="/var/www/nginx" ;;
     tomcat*) webroot="/var/lib/${servicio}/webapps/ROOT" ;;
     *) webroot="/var/www/html" ;;
     esac
@@ -207,13 +207,16 @@ install_servicio() {
 
     case "$servicio" in
     apache2)
-        # Instalar con version exacta, si falla instalar la disponible
         if ! apt-get install -y "apache2=$version" 2>/dev/null; then
             echo "[ADVERTENCIA] Version $version no disponible, instalando version actual..."
             apt-get install -y apache2
         fi
         systemctl enable apache2
         systemctl start apache2
+        # Apuntar DocumentRoot a carpeta propia
+        sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/apache2|' /etc/apache2/sites-enabled/000-default.conf
+        sed -i 's|<Directory /var/www/html|<Directory /var/www/apache2|' /etc/apache2/sites-enabled/000-default.conf
+        systemctl restart apache2
         set_puerto_apache2 "$puerto"
         ;;
     nginx)
@@ -223,6 +226,9 @@ install_servicio() {
         fi
         systemctl enable nginx
         systemctl start nginx
+        # Apuntar root a carpeta propia
+        sed -i 's|root /var/www/html|root /var/www/nginx|' /etc/nginx/sites-enabled/default
+        systemctl restart nginx
         set_puerto_nginx "$puerto"
         ;;
     tomcat*)
@@ -230,88 +236,20 @@ install_servicio() {
             echo "[ADVERTENCIA] Version $version no disponible, instalando version actual..."
             apt-get install -y "$servicio"
         fi
-
-        # Detectar nombre del servicio
         local svc
         svc=$(systemctl list-units --type=service | grep -i tomcat | awk '{print $1}' | head -1)
         if [ -n "$svc" ]; then
             systemctl enable "$svc"
             systemctl start "$svc"
         fi
-
         set_puerto_tomcat "$puerto"
         ;;
     esac
 
     echo ""
-    # Obtener version real instalada
     local version_real
     version_real=$(dpkg -l "$servicio" 2>/dev/null | awk '/^ii/{print $3}')
 
     echo "[OK] $servicio instalado correctamente. Version real: $version_real"
     new_index_html "$servicio" "$version_real" "$puerto"
 }
-echo ""
-echo "======================================================"
-echo "   Instalador de servidor HTTP para Ubuntu 24.04"
-echo "======================================================"
-echo "  1) Apache2"
-echo "  2) Nginx"
-echo "  3) Tomcat"
-echo "  0) Salir"
-echo ""
-
-while true; do
-    read -rp "  Selecciona el servidor a instalar: " opc
-    [[ "$opc" =~ ^[0-3]$ ]] && break
-    echo "  Opcion invalida."
-done
-
-case "$opc" in
-0)
-    echo "  Saliendo."
-    exit 0
-    ;;
-1)
-    mapfile -t versiones < <(get_versiones "apache2")
-    select_version "Apache2" "${versiones[@]}"
-    read_puerto 80
-    install_servicio "apache2" "$VERSION_ELEGIDA" "$PUERTO_ELEGIDO"
-    ;;
-2)
-    mapfile -t versiones < <(get_versiones "nginx")
-    select_version "Nginx" "${versiones[@]}"
-    read_puerto 80
-    install_servicio "nginx" "$VERSION_ELEGIDA" "$PUERTO_ELEGIDO"
-    ;;
-3)
-    # Buscar paquetes tomcat disponibles
-    mapfile -t pkgs < <(apt-cache search "^tomcat" | awk '{print $1}' | grep "^tomcat[0-9]" | sort -rV)
-
-    if [ ${#pkgs[@]} -eq 0 ]; then
-        echo "[ERROR] No se encontraron paquetes de Tomcat."
-        exit 1
-    fi
-
-    echo ""
-    echo "  Paquetes de Tomcat disponibles:"
-    for ((i = 0; i < ${#pkgs[@]}; i++)); do
-        echo "  $((i + 1))) ${pkgs[$i]}"
-    done
-
-    while true; do
-        read -rp "
-  ¿Cual paquete deseas instalar? [1-${#pkgs[@]}]: " eleccion
-        if [[ "$eleccion" =~ ^[0-9]+$ ]] && [ "$eleccion" -ge 1 ] && [ "$eleccion" -le ${#pkgs[@]} ]; then
-            PKG_TOMCAT="${pkgs[$((eleccion - 1))]}"
-            break
-        fi
-        echo "  Opcion invalida."
-    done
-
-    mapfile -t versiones < <(get_versiones "$PKG_TOMCAT")
-    select_version "Tomcat ($PKG_TOMCAT)" "${versiones[@]}"
-    read_puerto 8080
-    install_servicio "$PKG_TOMCAT" "$VERSION_ELEGIDA" "$PUERTO_ELEGIDO"
-    ;;
-esac
