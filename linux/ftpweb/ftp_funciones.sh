@@ -150,4 +150,3 @@ cambiarGrupo() {
 
   echo "Usuario $user cambiado a $nuevo_grupo correctamente"
 }
-

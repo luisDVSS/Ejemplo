@@ -57,6 +57,7 @@ while :; do
 	echo "2) Instalar 'vsftpd'"
 	echo "3) Registrar usuarios"
 	echo "4) Cambiar de grupo un usuario"
+	echo "5) Crear usuario repositorio (Práctica 7)"
 	echo "0) Salir"
 	read opc
 
@@ -98,6 +99,10 @@ while :; do
 		read -p "Ingresa el nombre del usuario" usu
 		cambiarGrupo "$usu"
 
+		;;
+	5)
+		echo "------Crear usuario repositorio------"
+		crearUserRepo
 		;;
 	0)
 		echo "saliendo.."
