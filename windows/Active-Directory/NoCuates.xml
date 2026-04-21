@@ -102,7 +102,7 @@
     <FilePathRule Id="d0000001-0000-0000-0000-000000000001"
       Name="Bloquear Notepad System32"
       Description=""
-      Action="Deny" UserOrGroupSid="S-1-5-21-844394367-187096619-1264955401-1108">
+      Action="Deny" UserOrGroupSid="S-1-5-21-763941807-2057390817-1915026577-1105">
       <Conditions>
         <FilePathCondition Path="%SYSTEM32%\notepad.exe"/>
       </Conditions>
@@ -111,7 +111,7 @@
     <FilePathRule Id="d0000003-0000-0000-0000-000000000003"
       Name="Bloquear Notepad raiz Windows"
       Description=""
-      Action="Deny" UserOrGroupSid="S-1-5-21-844394367-187096619-1264955401-1108">
+      Action="Deny" UserOrGroupSid="S-1-5-21-763941807-2057390817-1915026577-1105">
       <Conditions>
         <FilePathCondition Path="%WINDIR%\notepad.exe"/>
       </Conditions>
@@ -120,11 +120,11 @@
     <FileHashRule Id="d0000002-0000-0000-0000-000000000002"
       Name="Bloquear Notepad por hash"
       Description=""
-      Action="Deny" UserOrGroupSid="S-1-5-21-844394367-187096619-1264955401-1108">
+      Action="Deny" UserOrGroupSid="S-1-5-21-763941807-2057390817-1915026577-1105">
       <Conditions>
         <FileHashCondition>
           <FileHash Type="SHA256"
-            Data="0xF9D9B9DED9A67AA3CFDBD5002F3B524B265C4086C188E1BE7C936AB25627BF01"
+            Data="0xDA5807BB0997CC6B5132950EC87EDA2B33B1AC4533CF1F7A22A6F3B576ED7C5B"
             SourceFileName="notepad.exe"
             SourceFileLength="201216"/>
         </FileHashCondition>

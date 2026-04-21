@@ -1,119 +1,178 @@
-
 . "$PSScriptRoot\funciones_ad.ps1"
 . "$PSScriptRoot\funciones_smdfa.ps1"
-#importacion de los modulos necesarios
+
+# Importacion de modulos necesarios
 Import-Module ActiveDirectory
 Import-Module GroupPolicy
 Import-Module FileServerResourceManager
-#
-#configuracion de todas 
 
-#
-#
-while($true)
-{
-Write-Host "SERVICIO DE ACTIVE DIRECTORY MENU"
-Write-Host "1) Instalacion de active directoriy / init Forest & domininio empresa.local "
-Write-Host "2) Crear OUs"
-Write-Host "3) Crear GPOS"
-Write-Host "4) Configurar GPO cuates"
-Write-Host "5) Configurar GPO no cuates"
-Write-Host "6) Añadir las reglas de no/si ejecucion a cada grupo"
-Write-Host "7) Linkear los grupos con su OU"
-Write-Host "8) registro de usuarios (del csv)"
-Write-Host "9) Configurar Fsrm para bloqueo de archivos formato(mp3,mp4,exe,msi)"
-#compartir en la red la carpeta usuarios 
-#recorre los usuarios noCuates y cuates
-#y setea su homedirectory en \\empresa.local\Usuearios\(usuario en particular)
-#tambien le da permisos acl a cada usuario a su carpeta
-Write-Host "10) Configurar carpetas de usuarios"
-Write-Host "11) Setear las horas permititdas"
-Write-Host "12) PROCESAR TODOS LOS DATOS DE MANERA PREDEFINIDA"
-Write-Host "13) Crear usuarios administradores delegados"
-Write-Host "14) Asignar permisos RBAC a los admins"
-Write-Host "15) Configurar auditoria de eventos"
-Write-Host "16) Configurar politicas de contrasena FGPP"
-Write-Host "17) Extraer reporte de accesos denegados"
-Write-Host "0)salir"
+while($true) {
 
-    $opc= Read-Host "Opcion a ejecutar:"
-switch($opc){
-  "1"{
-    #FLUJO NORMAL BASICO DE ACTIVE DIRECTORY
-    Write-Host "Iniciando descarga"
-    getADfeatures
-    promoverServidor
-    }
-  "2"{
-    Write-Host "Creando OU( Unidad Organizacional)" 
-    crearOU
-    }
-  "3"{
-    Write-Host "Creando GPOS...(Group Policy Object)" 
-    crearGPOS
-    }
-  "4"{
-    Write-Host "Configurando GPO de cuates"
-    configGPOcuates
-    }
-  "5"{
-    Write-Host "Configurando GPO de NoCuates" 
-    configGPONocuates
-    }
-  "6"{ 
-    Write-Host "Creando las reglas de los GPOS"
-    setRulesGpos
-    }
-  "7"{
-    Write-Host "Linkeando las reglas con esos GPOS"
-    linkearGPOS
-    }
-  "8"{
-    Write-Host "Registrando los usuarios en el csv: ..\usuarios.csv "
-    regUsers
-    }
-  "9"{
-    Write-Host "Configurando limites de tipos de archivos"
-    configFsrm
-    }
-  "10"{
-    Write-Host "Estableciendo las carpetas de usuario en red y asignando permisos"
-    accesFolders
-    }
-    "11"{
-      Write-Host "Seteando las horas establecidas." 
-    setHours
-    }
-  "12"{
-    # getADfeatures
-    # promoverServidor
-    crearOU
-    crearGPOS
-    configGPOcuates
-    configGPONocuates
-    setRulesGpos
-    linkearGPOS
-    regUsers
-    configFsrm
-    accesFolders  # <- faltaba
-    setHours    
-  }
-"13" { crear_admins }
-"14" { asignar_permisos_admins }
-"15" { configurar_auditoria }
-"16" { configurar_FGPP }
-"17" { extraer_accesos_denegados }
-  "0"{
-      return
-    }
-    "*"{
-        Write-Host "Opcion no valida"
-        continue
-      }
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "   SERVICIO DE ACTIVE DIRECTORY MENU   " -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
 
-}
+    Write-Host ""
+    Write-Host "--- INSTALACION Y ESTRUCTURA ---" -ForegroundColor Yellow
+    Write-Host "1)  Instalacion de Active Directory / init Forest & dominio empresa.local"
+    Write-Host "2)  Crear OUs (Cuates, NoCuates, AdminsDelegados)"
+    Write-Host "3)  Crear GPOs"
+    Write-Host "4)  Configurar GPO Cuates"
+    Write-Host "5)  Configurar GPO NoCuates"
+    Write-Host "6)  Añadir reglas de ejecucion a cada grupo (AppLocker)"
+    Write-Host "7)  Linkear GPOs con sus OUs"
 
+    Write-Host ""
+    Write-Host "--- USUARIOS Y RECURSOS ---" -ForegroundColor Yellow
+    Write-Host "8)  Registro de usuarios (del CSV)"
+    Write-Host "9)  Configurar FSRM (bloqueo mp3, mp4, exe, msi)"
+    Write-Host "10) Configurar carpetas de usuarios (red + permisos ACL)"
+    Write-Host "11) Setear horarios permitidos"
 
+    Write-Host ""
+    Write-Host "--- SEGURIDAD Y RBAC ---" -ForegroundColor Yellow
+    Write-Host "13) Crear usuarios administradores delegados"
+    Write-Host "14) Asignar permisos RBAC a los admins"
+    Write-Host "15) Configurar auditoria de eventos"
+    Write-Host "16) Configurar politicas de contrasena (FGPP)"
+    Write-Host "17) Extraer reporte de accesos denegados"
 
-#final while
+    Write-Host ""
+    Write-Host "--- MFA ---" -ForegroundColor Yellow
+    Write-Host "18) Instalar y configurar MultiOTP + MFA por SSH"
+
+    Write-Host ""
+    Write-Host "--- EJECUCION RAPIDA ---" -ForegroundColor Yellow
+    Write-Host "12) PROCESAR TODOS LOS DATOS DE MANERA PREDEFINIDA"
+
+    Write-Host ""
+    Write-Host "0)  Salir" -ForegroundColor Red
+    Write-Host ""
+
+    $opc = Read-Host "Opcion a ejecutar"
+
+    switch($opc) {
+
+        "1" {
+            Write-Host "Iniciando instalacion de Active Directory..." -ForegroundColor Cyan
+            getADfeatures
+            promoverServidor
+        }
+
+        "2" {
+            Write-Host "Creando OUs (Unidades Organizacionales)..." -ForegroundColor Cyan
+            crearOU
+        }
+
+        "3" {
+            Write-Host "Creando GPOs (Group Policy Objects)..." -ForegroundColor Cyan
+            crearGPOS
+        }
+
+        "4" {
+            Write-Host "Configurando GPO de Cuates..." -ForegroundColor Cyan
+            configGPOcuates
+        }
+
+        "5" {
+            Write-Host "Configurando GPO de NoCuates..." -ForegroundColor Cyan
+            configGPONocuates
+        }
+
+        "6" {
+            Write-Host "Aplicando reglas AppLocker a los GPOs..." -ForegroundColor Cyan
+            setRulesGpos
+        }
+
+        "7" {
+            Write-Host "Linkeando GPOs con sus OUs..." -ForegroundColor Cyan
+            linkearGPOS
+        }
+
+        "8" {
+            Write-Host "Registrando usuarios desde CSV..." -ForegroundColor Cyan
+            regUsers
+        }
+
+        "9" {
+            Write-Host "Configurando FSRM (bloqueo de formatos prohibidos)..." -ForegroundColor Cyan
+            configFsrm
+        }
+
+        "10" {
+            Write-Host "Configurando carpetas de usuarios en red y permisos ACL..." -ForegroundColor Cyan
+            accesFolders
+        }
+
+        "11" {
+            Write-Host "Seteando horarios de acceso permitidos..." -ForegroundColor Cyan
+            setHours
+        }
+
+        "12" {
+            Write-Host ""
+            Write-Host ">>> PROCESANDO TODOS LOS DATOS DE MANERA PREDEFINIDA <<<" -ForegroundColor Magenta
+            Write-Host ""
+
+            Write-Host "[1/11] Creando OUs..."              -ForegroundColor Gray ; crearOU
+            Write-Host "[2/11] Creando GPOs..."             -ForegroundColor Gray ; crearGPOS
+            Write-Host "[3/11] Configurando GPO Cuates..."  -ForegroundColor Gray ; configGPOcuates
+            Write-Host "[4/11] Configurando GPO NoCuates..." -ForegroundColor Gray ; configGPONocuates
+            Write-Host "[5/11] Aplicando reglas AppLocker..." -ForegroundColor Gray ; setRulesGpos
+            Write-Host "[6/11] Linkeando GPOs..."           -ForegroundColor Gray ; linkearGPOS
+            Write-Host "[7/11] Registrando usuarios CSV..." -ForegroundColor Gray ; regUsers
+            Write-Host "[8/11] Configurando FSRM..."        -ForegroundColor Gray ; configFsrm
+            Write-Host "[9/11] Configurando carpetas..."    -ForegroundColor Gray ; accesFolders
+            Write-Host "[10/11] Seteando horarios..."       -ForegroundColor Gray ; setHours
+            Write-Host "[11/11] Creando admins delegados + RBAC + Auditoria + FGPP..." -ForegroundColor Gray
+            crear_admins
+            asignar_permisos_admins
+            configurar_auditoria
+            configurar_FGPP
+
+            Write-Host ""
+            Write-Host ">>> PROCESO COMPLETO FINALIZADO <<<" -ForegroundColor Magenta
+        }
+
+        "13" {
+            Write-Host "Creando usuarios administradores delegados..." -ForegroundColor Cyan
+            crear_admins
+        }
+
+        "14" {
+            Write-Host "Asignando permisos RBAC a los admins..." -ForegroundColor Cyan
+            asignar_permisos_admins
+        }
+
+        "15" {
+            Write-Host "Configurando auditoria de eventos..." -ForegroundColor Cyan
+            configurar_auditoria
+        }
+
+        "16" {
+            Write-Host "Configurando politicas de contrasena FGPP..." -ForegroundColor Cyan
+            configurar_FGPP
+        }
+
+        "17" {
+            Write-Host "Extrayendo reporte de accesos denegados..." -ForegroundColor Cyan
+            extraer_accesos_denegados
+        }
+
+        "18" {
+            Write-Host "Iniciando configuracion de MultiOTP + MFA por SSH..." -ForegroundColor Cyan
+            & "$PSScriptRoot\setup_multiotp_ssh.ps1"
+        }
+
+        "0" {
+            Write-Host "Saliendo..." -ForegroundColor Red
+            return
+        }
+
+        default {
+            Write-Host "Opcion no valida. Intenta de nuevo." -ForegroundColor Red
+            continue
+        }
+    }
 }
